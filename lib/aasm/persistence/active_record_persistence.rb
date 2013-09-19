@@ -36,6 +36,14 @@ module AASM
         else
           base.before_validation_on_create(:aasm_ensure_initial_state)
         end
+
+        base.after_save do
+          if changed.include?(self.class.aasm_column.to_s)
+            current_state = aasm.state_object_for_name(aasm.current_state)
+            current_state.fire_callbacks(:after_save, self)
+          end
+        end
+
       end
 
       module ClassMethods
